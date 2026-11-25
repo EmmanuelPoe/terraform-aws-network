@@ -24,21 +24,23 @@
 | `true` | `true` | 1 | 1, all private subnets share it |
 | `true` | `false` (prod default) | one per AZ | one per AZ; private subnet *i* uses table `i % count` |
 
-Per-AZ NAT requires at least as many public subnets as AZs, because NAT *i* is placed in `aws_subnet.public[i]`.
+Per-AZ NAT requires at least as many public subnets as AZs, because NAT *i* is placed in `aws_subnet.public[i]` (enforced by a precondition).
 
 ### Inputs and outputs
 
 Inputs: `name`, `cidr`, `azs`, `public_subnets` (default `[]`), `private_subnets` (default `[]`), `enable_nat_gateway` (default `true`), `single_nat_gateway` (default `false`), `tags` (default `{}`).
 
-Outputs: `vpc_id`, `public_subnet_ids`, `private_subnet_ids`, `vpc_cidr`. The root module does not re-export them; add root `outputs.tf` if callers need them.
+Outputs: `vpc_id`, `public_subnet_ids`, `private_subnet_ids`, `vpc_cidr`, `nat_gateway_ids`, all re-exported by root `outputs.tf`.
+
+A `lifecycle.precondition` on `aws_nat_gateway.this` fails the plan when per-AZ NAT is requested with fewer public subnets than AZs.
 
 ## Production values (`environments/prod.tfvars`)
 
 VPC `10.0.0.0/16` in `us-east-1a/b/c`; public `10.0.101-103.0/24`; private `10.0.1-3.0/24`; one NAT gateway per AZ.
 
-## Not implemented
+## Not implemented (README roadmap)
 
-The README's transit gateway, security group, VPC endpoint and network firewall modules, the "isolated"/DB subnet tier in its diagram, and the multi-account/multi-region claims do not exist in code. There is no remote state backend and no CI.
+Transit gateway, security groups, VPC endpoints, network firewall, an isolated/DB subnet tier, and a remote state backend. CI only validates; it never plans or applies.
 
 ## Adding a module
 

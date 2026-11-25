@@ -20,4 +20,4 @@ This is a public repository. Treat everything committed as visible to the world.
 - No new `0.0.0.0/0` ingress rules.
 - No hard-coded account IDs, ARNs with account numbers, or credentials.
 - `terraform plan` reviewed before any apply; NAT gateways and EIPs are billable.
-- `.terraform.lock.hcl` is currently gitignored; committing it would pin provider versions and is recommended.
+- `.terraform.lock.hcl` is gitignored; run `terraform init` locally and commit it (removing the ignore line) to pin provider versions.

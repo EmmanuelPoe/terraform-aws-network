@@ -1,6 +1,6 @@
 # Testing
 
-There are no automated tests or CI. Validate every change locally with the steps below, in order. None of them create AWS resources except `apply`.
+CI (`.github/workflows/terraform.yml`) runs `terraform fmt -check -recursive`, `terraform init -backend=false` and `terraform validate` on every pull request and push to `main`. Run the same steps locally first; none of them create AWS resources.
 
 ```bash
 terraform fmt -check -recursive      # formatting
@@ -9,12 +9,11 @@ terraform validate                   # syntax and type checks
 terraform plan -var-file=environments/prod.tfvars   # needs AWS credentials (read-only calls)
 ```
 
-As committed, `validate` fails because of `;` separators in four files (see CLAUDE.md). Fix those first.
-
 ## What to check in a plan
 
 - Resource counts match the NAT mode table in [architecture.md](architecture.md): with `prod.tfvars` expect 1 VPC, 3 public + 3 private subnets, 1 IGW, 3 EIPs, 3 NAT gateways, 1 public + 3 private route tables, 6 associations.
 - Toggle `-var enable_nat_gateway=false` and `-var single_nat_gateway=true` and confirm counts change as documented.
+- Passing fewer public subnets than AZs with per-AZ NAT must fail with the precondition error.
 - Nothing is destroyed unexpectedly (`-/+` or `-` lines).
 
 ## Optional tooling
